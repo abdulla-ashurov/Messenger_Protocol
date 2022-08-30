@@ -1,12 +1,12 @@
 /**
  * @file   messenger.hpp
- * @author 
+ * @author
  * @brief  Задание1 - реализация протокола обмена сообщениями между пользователями.
  *
  * @detail Для обмена сообщениями между пользователями используются пакеты следующего вида:
- * 
+ *
  *	+-MSG packet------------------------------------------------------------------------------------------>
- *	0        2 3          6 7           11 12     15 16        
+ *	0        2 3          6 7           11 12     15 16
  *	+---------+------------+--------------+---------+----------------------+------------------------------+
  *	|  FLAG   | NAME_LEN   |    MSG_LEN   |  CRC4   |        NAME          |            MSG               |
  *	+---------+------------+--------------+---------+----------------------+------------------------------+
@@ -29,7 +29,7 @@
 
 #include <stdint.h>
 #include <stdexcept>
-#include <iterator>		// std::advance, std::distance
+#include <iterator> // std::advance, std::distance
 #include <cassert>
 #include <vector>
 #include <string>
@@ -37,55 +37,53 @@
 namespace messenger
 {
 
-/**
- * Helper type to represent message: sender name, message text
- */
-struct msg_t
-{
-	msg_t(const std::string & nm, const std::string & txt)
-		: name(nm)
-		, text(txt)
-	{}
+    /**
+     * Helper type to represent message: sender name, message text
+     */
+    struct msg_t
+    {
+        msg_t(const std::string &nm, const std::string &txt)
+            : name(nm), text(txt)
+        {
+        }
 
-	std::string name;	/**< message sender's name */
-	std::string text;	/**< message text */
-};
+        std::string name; /**< message sender's name */
+        std::string text; /**< message text */
+    };
 
+    /**
+     * Prepare raw message buffer from specified message
+     *
+     * @note raw message buffer may consist from several (at least one) message packets
+     *
+     * @param msg message sender's name & message text
+     * @return buffer with prepared message packets
+     *
+     * @sample
+     *
+     * // if make_buff succeeded: buff contains required number of packets (for this case 1) to encode specified message
+     * std::vector<uint8_t> buff = messenger::make_buff( messenger::msg_t("Timur", "Hi") );
+     *
+     * // if parse_buff succeeded:
+     * //	msg.name should be "Timur";
+     * //	msg.text should be "Hi".
+     * messenger::msg_t msg = messenger::parse_buff(buff);
+     */
+    std::vector<uint8_t> make_buff(const msg_t &msg);
 
-/**
- * Prepare raw message buffer from specified message
- *
- * @note raw message buffer may consist from several (at least one) message packets
- *
- * @param msg message sender's name & message text
- * @return buffer with prepared message packets
- *
- * @sample
- * 
- * // if make_buff succeeded: buff contains required number of packets (for this case 1) to encode specified message
- * std::vector<uint8_t> buff = messenger::make_buff( messenger::msg_t("Timur", "Hi") );
- *
- * // if parse_buff succeeded:
- * //	msg.name should be "Timur";
- * //	msg.text should be "Hi".
- * messenger::msg_t msg = messenger::parse_buff(buff);
-*/
-std::vector<uint8_t> make_buff(const msg_t & msg);
+    /**
+     * Parse specified raw message buffer to get original message
+     *
+     * @param buff raw message buffer
+     * @return parsed message
+     *
+     * @note In the process of decoding the buffer, it is necessary to verify the value of the fields:
+     *	- FLAG;
+     *	- CRC4.
+     * If their value will be incorrect throw std::runtime_error
+     */
+    msg_t parse_buff(std::vector<uint8_t> &buff);
 
-
-/**
-* Parse specified raw message buffer to get original message
-*
-* @param buff raw message buffer
-* @return parsed message
-*
-* @note In the process of decoding the buffer, it is necessary to verify the value of the fields:
-*	- FLAG;
-*	- CRC4.
-* If their value will be incorrect throw std::runtime_error
-*/
-msg_t parse_buff(std::vector<uint8_t> & buff);
-
-}	// namespace messenger
+} // namespace messenger
 
 #endif // !TASK1_MESSENGER_HPP
