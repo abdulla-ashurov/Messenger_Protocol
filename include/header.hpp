@@ -1,5 +1,5 @@
-#ifndef HEADER
-#define HEADER
+#ifndef HEADER_h
+#define HEADER_h
 
 #include <iostream>
 #include <string>
@@ -14,8 +14,8 @@ struct Msg_t {
 };
 
 static const uint8_t crc4_tab[] = {
-	0x0, 0x7, 0xe, 0x9, 0xb, 0xc, 0x5, 0x2,
-	0x1, 0x6, 0xf, 0x8, 0xa, 0xd, 0x4, 0x3,
+    0x0, 0x7, 0xe, 0x9, 0xb, 0xc, 0x5, 0x2,
+    0x1, 0x6, 0xf, 0x8, 0xa, 0xd, 0x4, 0x3,
 };
 /**
  * crc4 - calculate the 4-bit crc of a value.
@@ -30,15 +30,15 @@ static const uint8_t crc4_tab[] = {
  */
 uint8_t crc4(uint8_t c, uint64_t x, int bits)
 {
-	int i;
-	/* mask off anything above the top bit */
-	x &= (1ull << bits) - 1;
-	/* Align to 4-bits */
-	bits = (bits + 3) & ~0x3;
-	/* Calculate crc4 over four-bit nibbles, starting at the MSbit */
-	for (i = bits - 4; i >= 0; i -= 4)
-		c = crc4_tab[c ^ ((x >> i) & 0xf)];
-	
+    int i;
+    /* mask off anything above the top bit */
+    x &= (1ull << bits) - 1;
+    /* Align to 4-bits */
+    bits = (bits + 3) & ~0x3;
+    /* Calculate crc4 over four-bit nibbles, starting at the MSbit */
+    for (i = bits - 4; i >= 0; i -= 4)
+        c = crc4_tab[c ^ ((x >> i) & 0xf)];
+    
     return c;
 }
 
@@ -72,7 +72,7 @@ void setMsgLength(std::vector<uint8_t>::iterator it, const uint8_t length) {
 }
 
 void setCRC4(std::vector<uint8_t>::iterator it, const uint8_t value) {
-    *it |= value; 
+    *it |= value;
 }
 
 void setHeader(std::vector<uint8_t>::iterator it, const uint8_t name_length, const uint8_t msg_length, const uint8_t crc4) {
@@ -87,7 +87,7 @@ void setSenderName(std::vector<uint8_t>::iterator begin, std::vector<uint8_t>::i
         *begin = name[i];
     }
 }
-void setSenderMsg(std::vector<uint8_t>::iterator begin, std::vector<uint8_t>::iterator end, const std::string &name, const uint8_t start_index) {
+void setSenderMsg(std::vector<uint8_t>::iterator begin, std::vector<uint8_t>::iterator end, const std::string &msg, uint8_t start_index) {
     for(; begin != end; start_index++, begin++) {
         *begin = msg[start_index];
     }
@@ -133,3 +133,4 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
 }
 
 #endif
+
