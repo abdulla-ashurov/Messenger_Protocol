@@ -146,6 +146,66 @@ TEST_CASE("test function set_name_length") {
     }
 }
 
+TEST_CASE("test function set_msg_length") {
+    SECTION("in vector should be {0, 0} values") {
+        std::vector<uint8_t> package(2);
+        const size_t msg_length = 0;
+        set_msg_length(package.begin(), msg_length);
+
+        std::vector<uint8_t> expected_values{0, 0};
+
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_values[i]);
+    }
+    SECTION("in vector should be {0, 240} values") {
+        std::vector<uint8_t> package(2);
+        const size_t msg_length = 15;
+        set_msg_length(package.begin(), msg_length);
+
+        std::vector<uint8_t> expected_values{0, 240};
+
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_values[i]);
+    }
+    SECTION("in vector should be {1, 240} values") {
+        std::vector<uint8_t> package(2);
+        const size_t msg_length = 31;
+        set_msg_length(package.begin(), msg_length);
+
+        std::vector<uint8_t> expected_values{1, 240};
+
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_values[i]);
+    }
+}
+
+TEST_CASE("test function set_crc4") {
+    SECTION("in vector should be {0} values") {
+        std::vector<uint8_t> package(1);
+        const size_t crc4 = 0;
+        set_crc4(package.begin(), crc4);
+
+        const size_t expected_values = 0;
+        REQUIRE(package[0] == expected_values);
+    }
+    SECTION("in vector should be {7} values") {
+        std::vector<uint8_t> package(1);
+        const size_t crc4 = 7;
+        set_crc4(package.begin(), crc4);
+
+        const size_t expected_values = 7;
+        REQUIRE(package[0] == expected_values);
+    }
+    SECTION("in vector should be {15} values") {
+        std::vector<uint8_t> package(1);
+        const size_t crc4 = 15;
+        set_crc4(package.begin(), crc4);
+
+        const size_t expected_values = 15;
+        REQUIRE(package[0] == expected_values);
+    }
+}
+
 TEST_CASE("test function set_header") {
     SECTION("in vector should be {169, 111} values") {
         std::vector<uint8_t> package(2);
@@ -156,8 +216,8 @@ TEST_CASE("test function set_header") {
 
         std::vector<uint8_t> expected_values{169, 111};
         
-        REQUIRE(package[0] == expected_values[0]);
-        REQUIRE(package[1] == expected_values[1]);  
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_values[i]);
     }
     SECTION("in vector should be {169, 255} values") {
         std::vector<uint8_t> package(2);
@@ -168,7 +228,134 @@ TEST_CASE("test function set_header") {
 
         std::vector<uint8_t> expected_values{169, 255};
 
-        REQUIRE(package[0] == expected_values[0]);
-        REQUIRE(package[1] == expected_values[1]);  
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_values[i]);
+    }
+}
+
+TEST_CASE("test function set_sender_name") {
+    SECTION("in vector should be \"John\"") {
+        const std::string name = "John";
+        std::vector<uint8_t> package(name.length());
+        set_sender_name(package.begin(), package.end(), name);
+
+        const std::string expected_name = "John";
+
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_name[i]);
+    }
+    SECTION("in vector should be \"John Smith\"") {
+        const std::string name = "John Smith";
+        std::vector<uint8_t> package(name.length());
+        set_sender_name(package.begin(), package.end(), name);
+
+        const std::string expected_name = "John Smith";
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_name[i]);
+    }
+}
+
+TEST_CASE("test function set_sender_msg") {
+    SECTION("in vector should be \"Hello\"") {
+        const std::string msg = "Hello";
+        std::vector<uint8_t> package(msg.length());
+        set_sender_msg(package.begin(), package.end(), msg, 0);
+
+        const std::string expected_msg = "Hello";
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_msg[i]);
+    }
+    SECTION("in vector should be \"Hello, John! How are you? What's a new?\"") {
+        const std::string msg = "Hello, John! How are you?";
+        std::vector<uint8_t> package(msg.length());
+        set_sender_msg(package.begin(), package.end(), msg, 0);
+
+        const std::string expected_msg = "Hello, John! How are you?";
+        for (size_t i = 0; i < package.size(); i++)
+            REQUIRE(package[i] == expected_msg[i]);
+    }
+}
+
+TEST_CASE("test function make_buff, when it returns 1 package") {
+    Msg_t msg{"John", "Hello World!"};
+    std::vector<uint8_t> bytes_of_packages = make_buff(msg);
+    
+    SECTION("vector size should be 18 bytes") {
+        const size_t expected_size = 18;
+        REQUIRE(bytes_of_packages.size() == expected_size);
+    }
+    SECTION("check package header fields") {
+        std::vector<uint8_t> expected_header_values{168, 192};
+        const size_t package_header_size_in_bytes = 2;
+
+        for (size_t i = 0; i < package_header_size_in_bytes; i++)
+            REQUIRE(bytes_of_packages[i] == expected_header_values[i]);
+    }
+    SECTION("check sender name and sender message in package") {
+        const std::string expected_name = "John";
+        size_t start_index = 2, end_index = start_index + expected_name.length();
+        
+        for (size_t i = 0; start_index < end_index; start_index++, i++)
+            REQUIRE(bytes_of_packages[start_index] == expected_name[i]);
+
+        const std::string expected_message = "Hello World!";
+        
+        for (size_t i = 0; start_index < bytes_of_packages.size(); start_index++, i++)
+            REQUIRE(bytes_of_packages[start_index] == expected_message[i]);
+    }
+}
+
+TEST_CASE("test function make_buff, when it returns 2 package") {
+    Msg_t msg{"John Smith", "Hello, John! How are you? What's a new?"};
+    std::vector<uint8_t> bytes_of_packages = make_buff(msg);
+    const size_t package_header_size_in_bytes = 2;
+    
+    SECTION("vector size should be 63 bytes") {
+        const size_t expected_size = 63;
+        REQUIRE(bytes_of_packages.size() == expected_size);
+    }
+    SECTION("check first package") {
+        std::vector<uint8_t> expected_header_values{181, 240};
+
+        size_t start_index = 0;
+        const size_t package_header_size_in_bytes = 2;
+
+        for (size_t i = 0; i < package_header_size_in_bytes; i++, start_index++)
+            REQUIRE(bytes_of_packages[start_index] == expected_header_values[i]);
+
+        const std::string expected_name = "John Smith";
+        size_t end_index = start_index + expected_name.length();
+        
+        for (size_t i = 0; start_index < end_index; i++, start_index++)
+            REQUIRE(bytes_of_packages[start_index] == expected_name[i]);
+
+        const std::string expected_message = "Hello, John! How are you? What'";
+        end_index = start_index + 31;
+
+        for (size_t i = 0; start_index < end_index; i++, start_index++)
+            REQUIRE(bytes_of_packages[start_index] == expected_message[i]);
+
+        std::cout << "start_index: " << start_index << std::endl;
+    }
+    
+    SECTION("check second package") {
+        std::vector<uint8_t> expected_header_values{180, 128};
+
+        size_t start_index = 43;
+        const size_t package_header_size_in_bytes = 2;
+
+        for (size_t i = 0; i < package_header_size_in_bytes; i++, start_index++)
+            REQUIRE(int(bytes_of_packages[start_index]) == int(expected_header_values[i]));
+
+        const std::string expected_name = "John Smith";
+        size_t end_index = start_index + expected_name.length();
+        
+        for (size_t i = 0; start_index < end_index; i++, start_index++)
+            REQUIRE(bytes_of_packages[start_index] == expected_name[i]);
+
+        const std::string expected_message = "s a new?";
+
+        for (size_t i = 0; start_index < bytes_of_packages.size(); i++, start_index++)
+            REQUIRE(bytes_of_packages[start_index] == expected_message[i]);
     }
 }
