@@ -1,7 +1,7 @@
 #include "../include/header.hpp"
 #include "catch_amalgamated.hpp"
 
-TEST_CASE("check function calculate_count_of_packages") {
+TEST_CASE("test function calculate_count_of_packages") {
     SECTION("should be 3 packages") {
         const size_t length_of_sender_message = 63;
         const size_t max_length_of_message_in_one_package = 31;
@@ -67,7 +67,7 @@ TEST_CASE("check function calculate_count_of_packages") {
     }
 }
 
-TEST_CASE("check function calculate_size_of_packages_in_bytes") {
+TEST_CASE("test function calculate_size_of_packages_in_bytes") {
     SECTION("should be 23 bytes") {
         const size_t package_header_size_in_bytes = 2;
         const size_t length_of_sender_name = 4;
@@ -106,5 +106,32 @@ TEST_CASE("check function calculate_size_of_packages_in_bytes") {
         REQUIRE(calculate_size_of_packages_in_bytes(
             package_header_size_in_bytes, length_of_sender_name, length_of_sender_message, count_of_packages) == expected_value
         );
+    }
+}
+
+TEST_CASE("test function setHeader") {
+    SECTION("In vector shoudld be {169, 111} values") {
+        std::vector<uint8_t> package(2);
+        const size_t length_of_sender_name = 4;
+        const size_t length_of_sender_message = 22;
+        const size_t crc4_value = 15;
+        setHeader(package.begin(), length_of_sender_name, length_of_sender_message, crc4_value);
+
+        std::vector<uint8_t> expected_values{169, 111};
+        
+        REQUIRE(package[0] == expected_values[0]);
+        REQUIRE(package[1] == expected_values[1]);  
+    }
+    SECTION("In vector shoudld be {169, 255} values") {
+        std::vector<uint8_t> package(2);
+        const size_t length_of_sender_name = 4;
+        const size_t length_of_sender_message = 31;
+        const size_t crc4_value = 15;
+        setHeader(package.begin(), length_of_sender_name, length_of_sender_message, crc4_value);
+
+        std::vector<uint8_t> expected_values{169, 255};
+        
+        REQUIRE(package[0] == expected_values[0]);
+        REQUIRE(package[1] == expected_values[1]);  
     }
 }
