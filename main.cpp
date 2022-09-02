@@ -72,7 +72,6 @@ std::vector<uint8_t> make_buff(const msg_t &msg) {
         throw std::length_error("text message must not be empty");
     }
 
-
     const size_t package_header_size_in_bytes = 2;
     const size_t count_of_packages = (msg.text.length() / 31) + ((msg.text.length() % 31) ? 1 : 0);
     const size_t size = (package_header_size_in_bytes + msg.name.length()) * count_of_packages + msg.text.length();
