@@ -111,7 +111,7 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
 
     std::vector<uint8_t> bytes_of_packages(size);
 
-    auto it = bytes_of_packages.begin();
+    std::vector<uint8_t>::iterator it = bytes_of_packages.begin();
     for (size_t i = 0, msg_length = msg.text.length(), start_msg_index = 0; i < count_of_packages || it != bytes_of_packages.end(); i++) {
         if (msg_length > max_length_of_message_in_one_package)
             set_header(it, msg.name.length(), max_length_of_message_in_one_package, crc4(4, 4, 4));
@@ -126,6 +126,7 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
             set_sender_msg(it, it + max_length_of_message_in_one_package, msg.text, start_msg_index);
             it += max_length_of_message_in_one_package;
             start_msg_index += max_length_of_message_in_one_package;
+            msg_length -= max_length_of_message_in_one_package;
         } else {
             set_sender_msg(it, it + msg_length, msg.text, start_msg_index);
             it += msg_length;
