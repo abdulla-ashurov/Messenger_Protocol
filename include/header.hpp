@@ -113,19 +113,22 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
 
     auto it = bytes_of_packages.begin();
     for (size_t i = 0, msg_length = msg.text.length(), start_msg_index = 0; i < count_of_packages || it != bytes_of_packages.end(); i++) {
-        setHeader(it, msg.name.length(), msg.text.length(), crc4(4, 4, 4));
+        if (msg_length > max_length_of_message_in_one_package)
+            setHeader(it, msg.name.length(), max_length_of_message_in_one_package, crc4(4, 4, 4));
+        else 
+            setHeader(it, msg.name.length(), msg_length, crc4(4, 4, 4));
         it += package_header_size_in_bytes;
         
         setSenderName(it, it + msg.name.length(), msg.name);
         it += msg.name.length();
 
-        if ((i + 1) == size) {
-            setSenderMsg(it, it + msg_length, msg.text, start_msg_index);
-            it += msg_length;
-        } else {
+        if (msg_length > max_length_of_message_in_one_package) {
             setSenderMsg(it, it + max_length_of_message_in_one_package, msg.text, start_msg_index);
             it += max_length_of_message_in_one_package;
             start_msg_index += max_length_of_message_in_one_package;
+        } else {
+            setSenderMsg(it, it + msg_length, msg.text, start_msg_index);
+            it += msg_length;
         }
     }
 
