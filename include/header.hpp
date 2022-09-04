@@ -136,5 +136,101 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
     return bytes_of_packages;
 }
 
+struct Header{
+    uint8_t flag, name_length, message_length, crc4;
+};
+
+uint8_t get_flag(std::vector<uint8_t>::iterator it) {
+    return *it >> 5;
+}
+
+uint8_t get_name_length(std::vector<uint8_t>::iterator it) {
+    uint8_t name_length = *it << 3;
+    name_length >>= 4;
+
+    return name_length;
+}
+
+uint8_t get_message_length(std::vector<uint8_t>::iterator it) {
+    uint8_t first_part = *it & 0x1;
+    first_part <<= 4;
+    uint8_t second_part = (*(it + 1) & 0xF0) >> 4;
+    
+    return first_part | second_part;
+}
+
+uint8_t get_crc4(std::vector<uint8_t>::iterator it) {
+    return crc4(4, 4, 4);
+}
+
+Header get_header(std::vector<uint8_t>::iterator it) {
+    Header header;
+    
+    header.flag = get_flag(it);
+    header.name_length = get_name_length(it);
+    header.message_length = get_message_length(it);
+    header.crc4 = get_crc4(it + 1);
+
+    return header;
+}
+
+std::string get_sender_name(std::vector<uint8_t>::iterator begin, std::vector<uint8_t>::iterator end) {
+    std::string name;
+    
+    for (; begin != end; begin++)
+        name += *begin;
+
+    return name;
+}
+
+std::string get_sender_message(std::vector<uint8_t>::iterator begin, size_t count) {
+    std::string message;
+
+    std::vector<uint8_t>::iterator end = begin + count;
+    for (; begin != end; begin++) 
+        message += *begin;
+
+    return message;
+}
+
+Msg_t parse_buff(std::vector<uint8_t> &buff) {
+    Header header;
+
+    const size_t package_header_size_in_bytes = 2;
+
+    std::vector<uint8_t>::iterator it = buff.begin();
+    header = get_header(it);
+    std::cout << int(header.name_length) << std::endl;
+    std::cout << int(header.message_length) << std::endl;
+    std::cout << int(header.flag) << std::endl;
+    std::cout << int(header.crc4) << std::endl;
+    it += package_header_size_in_bytes;
+
+    // if (header.flag == 0x5 || header.crc4 == 240)
+    //     throw "invalid package!";
+
+    std::string sender_name = get_sender_name(it, it + header.name_length);
+    it += header.name_length;
+
+    size_t max_length_of_message_in_one_package = 31;
+    std::string sender_message;
+
+    size_t temp_length = header.message_length;
+    for (; temp_length > 0 && it < buff.end();) {
+        if (temp_length >= max_length_of_message_in_one_package)
+            sender_message += get_sender_message(it, max_length_of_message_in_one_package);
+        else
+            sender_message += get_sender_message(it, temp_length);
+
+        it = it + max_length_of_message_in_one_package;
+
+        header = get_header(it);
+        temp_length = header.message_length;
+        it = it + header.name_length + package_header_size_in_bytes;
+    }
+
+    return Msg_t(sender_name, sender_message);
+}
+
 #endif
 
