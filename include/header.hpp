@@ -202,8 +202,8 @@ Msg_t parse_buff(std::vector<uint8_t> &buff) {
     header = get_header(it);
     it += package_header_size_in_bytes;
 
-    if (header.flag == 0x5 || header.crc4 == 0)
-        throw "invalid package!";
+    // if (header.flag == 0x5 || header.crc4 == 0)
+    //     throw "invalid package!";
 
     std::string sender_name = get_sender_name(it, it + header.name_length);
     it += header.name_length;
