@@ -200,14 +200,10 @@ Msg_t parse_buff(std::vector<uint8_t> &buff) {
 
     std::vector<uint8_t>::iterator it = buff.begin();
     header = get_header(it);
-    std::cout << int(header.name_length) << std::endl;
-    std::cout << int(header.message_length) << std::endl;
-    std::cout << int(header.flag) << std::endl;
-    std::cout << int(header.crc4) << std::endl;
     it += package_header_size_in_bytes;
 
-    // if (header.flag == 0x5 || header.crc4 == 240)
-    //     throw "invalid package!";
+    if (header.flag == 0x5 || header.crc4 == 0)
+        throw "invalid package!";
 
     std::string sender_name = get_sender_name(it, it + header.name_length);
     it += header.name_length;
