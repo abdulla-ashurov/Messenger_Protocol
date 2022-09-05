@@ -151,7 +151,7 @@ uint8_t get_name_length(std::vector<uint8_t>::iterator it) {
     return name_length;
 }
 
-uint8_t get_message_length(std::vector<uint8_t>::iterator it) {
+uint8_t get_msg_length(std::vector<uint8_t>::iterator it) {
     uint8_t first_part = *it & 0x1;
     first_part <<= 4;
     uint8_t second_part = (*(it + 1) & 0xF0) >> 4;
@@ -160,7 +160,7 @@ uint8_t get_message_length(std::vector<uint8_t>::iterator it) {
 }
 
 uint8_t get_crc4(std::vector<uint8_t>::iterator it) {
-    return crc4(4, 4, 4);
+    return *it & 0x0F;
 }
 
 Header get_header(std::vector<uint8_t>::iterator it) {
@@ -168,7 +168,7 @@ Header get_header(std::vector<uint8_t>::iterator it) {
     
     header.flag = get_flag(it);
     header.name_length = get_name_length(it);
-    header.message_length = get_message_length(it);
+    header.message_length = get_msg_length(it);
     header.crc4 = get_crc4(it + 1);
 
     return header;
