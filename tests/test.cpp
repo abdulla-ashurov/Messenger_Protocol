@@ -252,14 +252,6 @@ TEST_CASE("test function set_sender_msg and get_sender_msg") {
 
         REQUIRE(get_sender_message(package.begin(), msg.length()) == msg);
     }
-    // I don't like this test because function get_sender_msg should return max 31 characters
-    SECTION("function get_sender_msg should return \"Hello, John! How are you? What's a new?\"") {
-        const std::string msg = "Hello, John! How are you? What's a new?";
-        std::vector<uint8_t> package(msg.length());
-        set_sender_msg(package.begin(), package.end(), msg, 0);
-
-        REQUIRE(get_sender_message(package.begin(), msg.length()) == msg);
-    }
 }
 
 TEST_CASE("test function make_buff, when it returns 1 package") {
