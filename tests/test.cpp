@@ -109,170 +109,156 @@ TEST_CASE("test function calculate_size_of_packages_in_bytes") {
     }
 }
 
-TEST_CASE("test function set_flag") {
-    SECTION("in vector should be {160} value") {
+TEST_CASE("test function set_flag and get_flag") {
+    SECTION("function get_flag should return 5") {
         std::vector<uint8_t> package(1);
         set_flag(package.begin());
 
-        const size_t expected_value = 160;
-        REQUIRE(package[0] == expected_value);
+        const uint8_t expected_value = 5;
+        REQUIRE(get_flag(package.begin()) == expected_value);
     }
 }
 
-TEST_CASE("test function set_name_length") {
-    SECTION("in vector should be {0} value") {
+TEST_CASE("test function set_name_length and get_name_length") {
+    SECTION("function get_name_length should return 0") {
         std::vector<uint8_t> package(1);
-        const size_t name_length = 0;
+        const uint8_t name_length = 0;
         set_name_length(package.begin(), name_length);
 
-        const size_t expected_value = 0;
-        REQUIRE(package[0] == expected_value);
+        REQUIRE(get_name_length(package.begin()) == name_length);
     }
-    SECTION("in vector should be {28} value") {
+    SECTION("function get_name_length should return 7") {
         std::vector<uint8_t> package(1);
-        const size_t name_length = 7;
+        const uint8_t name_length = 7;
         set_name_length(package.begin(), name_length);
 
-        const size_t expected_value = 14;
-        REQUIRE(package[0] == expected_value);
+        REQUIRE(get_name_length(package.begin()) == name_length);
     }
-    SECTION("in vector should be {30} value") {
+    SECTION("function get_name_length should return 15") {
         std::vector<uint8_t> package(1);
-        const size_t name_length = 15;
+        const uint8_t name_length = 15;
         set_name_length(package.begin(), name_length);
 
-        const size_t expected_value = 30;
-        REQUIRE(package[0] == expected_value);
+        REQUIRE(get_name_length(package.begin()) == name_length);
     }
 }
 
-TEST_CASE("test function set_msg_length") {
-    SECTION("in vector should be {0, 0} values") {
+TEST_CASE("test function set_msg_length and get_msg_length") {
+    SECTION("function get_msg_length should return 0") {
         std::vector<uint8_t> package(2);
-        const size_t msg_length = 0;
+        const uint8_t msg_length = 0;
         set_msg_length(package.begin(), msg_length);
 
-        std::vector<uint8_t> expected_values{0, 0};
-
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_values[i]);
+        REQUIRE(get_msg_length(package.begin()) == msg_length);
     }
-    SECTION("in vector should be {0, 240} values") {
+    SECTION("function get_msg_length should return 15") {
         std::vector<uint8_t> package(2);
         const size_t msg_length = 15;
         set_msg_length(package.begin(), msg_length);
 
-        std::vector<uint8_t> expected_values{0, 240};
-
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_values[i]);
+        REQUIRE(get_msg_length(package.begin()) == msg_length);
     }
-    SECTION("in vector should be {1, 240} values") {
+    SECTION("function get_msg_length should return 31") {
         std::vector<uint8_t> package(2);
         const size_t msg_length = 31;
         set_msg_length(package.begin(), msg_length);
 
-        std::vector<uint8_t> expected_values{1, 240};
-
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_values[i]);
+        REQUIRE(get_msg_length(package.begin()) == msg_length);
     }
 }
 
-TEST_CASE("test function set_crc4") {
-    SECTION("in vector should be {0} values") {
+TEST_CASE("test function set_crc4 and get_crc4") {
+    SECTION("function get_crc4 should return 0") {
         std::vector<uint8_t> package(1);
         const size_t crc4 = 0;
         set_crc4(package.begin(), crc4);
 
-        const size_t expected_values = 0;
-        REQUIRE(package[0] == expected_values);
+        REQUIRE(get_crc4(package.begin()) == crc4);
     }
-    SECTION("in vector should be {7} values") {
+    SECTION("function get_crc4 should return 7") {
         std::vector<uint8_t> package(1);
         const size_t crc4 = 7;
         set_crc4(package.begin(), crc4);
 
-        const size_t expected_values = 7;
-        REQUIRE(package[0] == expected_values);
+        REQUIRE(get_crc4(package.begin()) == crc4);
     }
-    SECTION("in vector should be {15} values") {
+    SECTION("function get_crc4 should return 15") {
         std::vector<uint8_t> package(1);
         const size_t crc4 = 15;
         set_crc4(package.begin(), crc4);
 
-        const size_t expected_values = 15;
-        REQUIRE(package[0] == expected_values);
+        REQUIRE(get_crc4(package.begin()) == crc4);
     }
 }
 
-TEST_CASE("test function set_header") {
-    SECTION("in vector should be {169, 111} values") {
+TEST_CASE("test function set_header and get_header") {
+    SECTION("function get_header should return type of Header with values {4, 22, 15}") {
         std::vector<uint8_t> package(2);
         const size_t length_of_sender_name = 4;
         const size_t length_of_sender_message = 22;
         const size_t crc4_value = 15;
         set_header(package.begin(), length_of_sender_name, length_of_sender_message, crc4_value);
-
-        std::vector<uint8_t> expected_values{169, 111};
         
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_values[i]);
+        Header header = get_header(package.begin());
+
+        REQUIRE(header.name_length == length_of_sender_name);
+        REQUIRE(header.message_length == length_of_sender_message);
+        REQUIRE(header.crc4 == crc4_value);
     }
-    SECTION("in vector should be {169, 255} values") {
+    SECTION("function get_header should return type of Header with values {4, 31, 15}") {
         std::vector<uint8_t> package(2);
         const size_t length_of_sender_name = 4;
         const size_t length_of_sender_message = 31;
         const size_t crc4_value = 15;
         set_header(package.begin(), length_of_sender_name, length_of_sender_message, crc4_value);
 
-        std::vector<uint8_t> expected_values{169, 255};
+        Header header = get_header(package.begin());
 
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_values[i]);
+        REQUIRE(header.name_length == length_of_sender_name);
+        REQUIRE(header.message_length == length_of_sender_message);
+        REQUIRE(header.crc4 == crc4_value);
     }
 }
 
-TEST_CASE("test function set_sender_name") {
-    SECTION("in vector should be \"John\"") {
+TEST_CASE("test function set_sender_name and get_sender_name") {
+    SECTION("function get_sender_name should return \"John\"") {
         const std::string name = "John";
         std::vector<uint8_t> package(name.length());
         set_sender_name(package.begin(), package.end(), name);
 
-        const std::string expected_name = "John";
-
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_name[i]);
+        REQUIRE(get_sender_name(package.begin(), package.end()) == name);
     }
-    SECTION("in vector should be \"John Smith\"") {
+    SECTION("function get_sender_name should return \"John Smith\"") {
         const std::string name = "John Smith";
         std::vector<uint8_t> package(name.length());
         set_sender_name(package.begin(), package.end(), name);
 
-        const std::string expected_name = "John Smith";
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_name[i]);
+        REQUIRE(get_sender_name(package.begin(), package.end()) == name);
     }
 }
 
-TEST_CASE("test function set_sender_msg") {
-    SECTION("in vector should be \"Hello\"") {
+TEST_CASE("test function set_sender_msg and get_sender_msg") {
+    SECTION("function get_sender_msg should return \"Hello\"") {
         const std::string msg = "Hello";
         std::vector<uint8_t> package(msg.length());
         set_sender_msg(package.begin(), package.end(), msg, 0);
 
-        const std::string expected_msg = "Hello";
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_msg[i]);
+        REQUIRE(get_sender_message(package.begin(), msg.length()) == msg);
     }
-    SECTION("in vector should be \"Hello, John! How are you? What's a new?\"") {
+    SECTION("function get_sender_msg should return \"Hello, John! How are you?\"") {
         const std::string msg = "Hello, John! How are you?";
         std::vector<uint8_t> package(msg.length());
         set_sender_msg(package.begin(), package.end(), msg, 0);
 
-        const std::string expected_msg = "Hello, John! How are you?";
-        for (size_t i = 0; i < package.size(); i++)
-            REQUIRE(package[i] == expected_msg[i]);
+        REQUIRE(get_sender_message(package.begin(), msg.length()) == msg);
+    }
+    // I don't like this test because function get_sender_msg should return max 31 characters
+    SECTION("function get_sender_msg should return \"Hello, John! How are you? What's a new?\"") {
+        const std::string msg = "Hello, John! How are you? What's a new?";
+        std::vector<uint8_t> package(msg.length());
+        set_sender_msg(package.begin(), package.end(), msg, 0);
+
+        REQUIRE(get_sender_message(package.begin(), msg.length()) == msg);
     }
 }
 
@@ -355,5 +341,26 @@ TEST_CASE("test function make_buff, when it returns 2 package") {
 
         for (size_t i = 0; start_index < bytes_of_packages.size(); i++, start_index++)
             REQUIRE(bytes_of_packages[start_index] == expected_message[i]);
+    }
+}
+
+TEST_CASE("test function parse_buff") {
+    SECTION("function parse_buff should return type of Msg_t") {
+        Msg_t msg("John", "Hello World!");
+        std::vector<uint8_t> bytes_of_packages = make_buff(msg);
+
+        Msg_t received_msg = parse_buff(bytes_of_packages);
+
+        REQUIRE(received_msg.name == msg.name);
+        REQUIRE(received_msg.text == msg.text);
+    }
+    SECTION("function parse_buff should return type of Msg_t") {
+        Msg_t msg("John", "Hello, John! How are you? What's a new?");
+        std::vector<uint8_t> bytes_of_packages = make_buff(msg);
+
+        Msg_t received_msg = parse_buff(bytes_of_packages);
+
+        REQUIRE(received_msg.name == msg.name);
+        REQUIRE(received_msg.text == msg.text);
     }
 }
