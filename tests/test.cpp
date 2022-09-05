@@ -334,8 +334,6 @@ TEST_CASE("test function make_buff, when it returns 2 package") {
 
         for (size_t i = 0; start_index < end_index; i++, start_index++)
             REQUIRE(bytes_of_packages[start_index] == expected_message[i]);
-
-        std::cout << "start_index: " << start_index << std::endl;
     }
     
     SECTION("check second package") {
@@ -345,7 +343,7 @@ TEST_CASE("test function make_buff, when it returns 2 package") {
         const size_t package_header_size_in_bytes = 2;
 
         for (size_t i = 0; i < package_header_size_in_bytes; i++, start_index++)
-            REQUIRE(int(bytes_of_packages[start_index]) == int(expected_header_values[i]));
+            REQUIRE(bytes_of_packages[start_index] == expected_header_values[i]);
 
         const std::string expected_name = "John Smith";
         size_t end_index = start_index + expected_name.length();
