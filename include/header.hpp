@@ -114,9 +114,9 @@ std::vector<uint8_t> make_buff(const Msg_t &msg) {
     std::vector<uint8_t>::iterator it = bytes_of_packages.begin();
     for (size_t i = 0, msg_length = msg.text.length(), start_msg_index = 0; (i < count_of_packages) && (it != bytes_of_packages.end()); i++) {
         if (msg_length > max_length_of_message_in_one_package)
-            set_header(it, msg.name.length(), max_length_of_message_in_one_package, crc4(4, 4, 4));
+            set_header(it, msg.name.length(), max_length_of_message_in_one_package, crc4(4, 4, 8));
         else 
-            set_header(it, msg.name.length(), msg_length, crc4(4, 4, 4));
+            set_header(it, msg.name.length(), msg_length, crc4(4, 4, 8));
         it += package_header_size_in_bytes;
         
         set_sender_name(it, it + msg.name.length(), msg.name);
@@ -197,32 +197,31 @@ Msg_t parse_buff(std::vector<uint8_t> &buff) {
     Header header;
 
     const size_t package_header_size_in_bytes = 2;
+    const size_t max_length_of_message_in_one_package = 31;
 
     std::vector<uint8_t>::iterator it = buff.begin();
-    header = get_header(it);
-    it += package_header_size_in_bytes;
+    std::string sender_name, sender_message;
+    
+    for (size_t i = 0; it < buff.end(); i++) {
+        header = get_header(it);
+        size_t temp_length = header.message_length;
 
-    // if (header.flag == 0x5 || header.crc4 == 0)
-    //     throw "invalid package!";
+        if (header.flag != 0x05 || header.crc4 != 3)
+            throw "invalid package!";
 
-    std::string sender_name = get_sender_name(it, it + header.name_length);
-    it += header.name_length;
+        it += package_header_size_in_bytes;
 
-    size_t max_length_of_message_in_one_package = 31;
-    std::string sender_message;
-
-    size_t temp_length = header.message_length;
-    for (; temp_length > 0 && it < buff.end();) {
+        if (i == 0)
+            sender_name = get_sender_name(it, it + header.name_length);
+        
+        it += header.name_length;
+        
         if (temp_length >= max_length_of_message_in_one_package)
             sender_message += get_sender_message(it, max_length_of_message_in_one_package);
         else
             sender_message += get_sender_message(it, temp_length);
 
         it = it + max_length_of_message_in_one_package;
-
-        header = get_header(it);
-        temp_length = header.message_length;
-        it = it + header.name_length + package_header_size_in_bytes;
     }
 
     return Msg_t(sender_name, sender_message);
