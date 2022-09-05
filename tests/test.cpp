@@ -271,7 +271,7 @@ TEST_CASE("test function make_buff, when it returns 1 package") {
         REQUIRE(bytes_of_packages.size() == expected_size);
     }
     SECTION("check package header fields") {
-        std::vector<uint8_t> expected_header_values{168, 192};
+        std::vector<uint8_t> expected_header_values{168, 195};
         const size_t package_header_size_in_bytes = 2;
 
         for (size_t i = 0; i < package_header_size_in_bytes; i++)
@@ -301,7 +301,7 @@ TEST_CASE("test function make_buff, when it returns 2 package") {
         REQUIRE(bytes_of_packages.size() == expected_size);
     }
     SECTION("check first package") {
-        std::vector<uint8_t> expected_header_values{181, 240};
+        std::vector<uint8_t> expected_header_values{181, 243};
 
         size_t start_index = 0;
         const size_t package_header_size_in_bytes = 2;
@@ -323,7 +323,7 @@ TEST_CASE("test function make_buff, when it returns 2 package") {
     }
     
     SECTION("check second package") {
-        std::vector<uint8_t> expected_header_values{180, 128};
+        std::vector<uint8_t> expected_header_values{180, 131};
 
         size_t start_index = 43;
         const size_t package_header_size_in_bytes = 2;
