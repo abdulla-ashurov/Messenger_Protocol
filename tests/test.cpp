@@ -76,17 +76,17 @@ TEST_CASE("test function detaiL::put_message")
     }
 }
 
-TEST_CASE("test function put_flag and get_flag")
-{
-    SECTION("in vector should be expected_value")
-    {
-        std::vector<uint8_t> package(1);
-        detail::put_flag(package.begin());
+// TEST_CASE("test function put_flag and get_flag")
+// {
+//     SECTION("in vector should be expected_value")
+//     {
+//         std::vector<uint8_t> package(1);
+//         detail::put_flag(package.begin());
 
-        const uint8_t expected_value = 160;
-        REQUIRE(int(package[0]) == expected_value);
-    }
-}
+//         const uint8_t expected_value = 160;
+//         REQUIRE(int(package[0]) == expected_value);
+//     }
+// }
 
 // TEST_CASE("test function set_name_length and get_name_length") {
 //     SECTION("function get_name_length should return 0") {
