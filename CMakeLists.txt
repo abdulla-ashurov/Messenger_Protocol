@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(TESTS)
 
 set(SOURCE_EXE tests/test.cpp)
-set(SOURCE_LIB tests/catch_amalgamated.cpp)
+set(SOURCE_LIB tests/catch_amalgamated.cpp src/detail.cpp src/packet.cpp src/messenger.cpp)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 14)
