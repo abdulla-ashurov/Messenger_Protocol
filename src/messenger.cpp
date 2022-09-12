@@ -21,7 +21,7 @@ namespace messenger
         return buffer;
     }
 
-    Msg_t parse_buff(std::vector<uint8_t> &buff)
+    Msg_t parse_buff(const std::vector<uint8_t> &buff)
     {
         if (buff.empty() || buff.size() < min_buffer_size)
             throw std::invalid_argument("invalid buffer!");
