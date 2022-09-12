@@ -20,4 +20,27 @@ namespace messenger
 
         return buffer;
     }
+
+    Msg_t parse_buff(std::vector<uint8_t> &buff)
+    {
+        if (buff.empty() || buff.size() < min_buffer_size)
+            throw std::invalid_argument("invalid buffer!");
+
+        Internal_Msg_t next_packet;
+        next_packet.it = buff.begin();
+        
+        next_packet = packet::read_single_packet(next_packet.it, buff.end());
+        Msg_t parsed_buff(next_packet.name, next_packet.message);
+
+        while (next_packet.it != buff.end())
+        {
+            next_packet = packet::read_single_packet(next_packet.it, buff.end());
+            if (next_packet.name != parsed_buff.name)
+                throw std::invalid_argument("invalid sender_name field in buffer!");
+
+            parsed_buff.message += next_packet.message;
+        }
+
+        return parsed_buff;
+    }
 }
